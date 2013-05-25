@@ -22,8 +22,8 @@
         updateCallback: null,
         reverseGeocode: false,
         mapOptions: {
-            zoom: 5, 
-            center: new google.maps.LatLng(46, 2), 
+            zoom: 10, 
+            center: new google.maps.LatLng(40.66866,-73.9785), 
             scrollwheel: false,
             mapTypeId: google.maps.MapTypeId.ROADMAP
         },
@@ -38,9 +38,17 @@
             administrative_area_level_1: false,
 						country: false,
 						postal_code: false,
-            type: false
-
-        }
+            type: false,
+            establishment: false,
+        },
+        markerOptions: {
+            icon: false,
+            shadow: false
+        },
+        bounds: {
+          southwest: false,
+          northeast: false
+      }
     },
 
     marker: function() {
@@ -83,6 +91,7 @@
       this.country  = $(this.options.elements.country);
 			this.postal_code = $(this.options.elements.postal_code);
       this.type     = $(this.options.elements.type);
+      this.establishment = $(this.options.elements.establishment);
       if (this.options.elements.map) {
         this.mapElement = $(this.options.elements.map);
         this._initMap();
@@ -98,9 +107,14 @@
       this.gmarker = new google.maps.Marker({
         position: this.options.mapOptions.center, 
         map:this.gmap, 
-        draggable: this.options.draggableMarker});
+        draggable: this.options.draggableMarker,
+        icon: this.options.markerOptions.icon,
+        shadow: this.options.markerOptions.shadow});
       google.maps.event.addListener(this.gmarker, 'dragend', $.proxy(this._markerMoved, this));
       this.gmarker.setVisible(false);
+      this.bounds =  new google.maps.LatLngBounds(
+      new google.maps.LatLng(this.options.bounds.southwest),
+      new google.maps.LatLng(this.options.bounds.northeast));
     },
     
     _updatePosition: function(location) {
@@ -114,7 +128,7 @@
 
     _addressParts: {street_number: null, route: null, locality: null, 
                      administrative_area_level_2: null, administrative_area_level_1: null,
-                     country: null, postal_code:null, type: null},
+                     country: null, postal_code:null, type: null, establishment: null},
 
     _updateAddressParts: function(geocodeResult){
 
@@ -170,7 +184,8 @@
         var address = request.term, self = this;
         this.geocoder.geocode({
             'address': address + this.options.appendAddressString,
-            'region': this.options.regionBias
+            'region': this.options.regionBias,
+            'bounds': this.bounds
         }, function(results, status) {
             if (status == google.maps.GeocoderStatus.OK) {
                 for (var i = 0; i < results.length; i++) {
@@ -196,6 +211,8 @@
       if (!address) {
         return;
       }
+
+      google.maps.event.trigger(this.gmap, 'resize');
       
       if (this.gmarker) {
         this.gmarker.setPosition(address.geometry.location);

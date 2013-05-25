@@ -13,8 +13,9 @@
 	<script>
 	$(function() {
 		var addresspicker = $( "#addresspicker" ).addresspicker();
+        var iconBase = 'https://maps.google.com/mapfiles/';
 		var addresspickerMap = $( "#addresspicker_map" ).addresspicker({
-			regionBias: "fr",
+			regionBias: "us",
       updateCallback: showCallback,
 		  elements: {
 		    map:      "#map",
@@ -27,8 +28,17 @@
 		    administrative_area_level_1: '#administrative_area_level_1',
 		    country:  '#country',
 		    postal_code: '#postal_code',
-        type:    '#type' 
-		  }
+            type:    '#type' 
+		  },
+          markerOptions: {
+            icon: iconBase + 'ms/micons/yellow-dot.png',
+            shadow: iconBase + 'ms/micons/msmarker.shadow.png'
+          },
+          bounds: {
+            southwest: '34.172684,-118.604794',
+            northeast: '34.236144,-118.500938'
+            
+          }
 		});
 
 		var gmarker = addresspickerMap.addresspicker( "marker");
